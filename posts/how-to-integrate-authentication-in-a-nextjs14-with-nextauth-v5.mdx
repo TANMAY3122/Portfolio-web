@@ -1,0 +1,233 @@
+---
+title: "How to Integrate Authentication in a Next.js 14 with NextAuth v5(beta)"
+publishedAt: "2024-05-30"
+summary: "Learn how to integrate robust user authentication into your Next.js 14 project using NextAuth v5. This tutorial covers everything from setting up your environment to adding a sign-in button with Google as the authentication provider."
+readTime: "15 min read"
+banner: "next-auth.png"
+---
+
+> Next Auth is a complete open-source authentication solution for Next.js applications. It provides a set of high-level APIs to manage user authentication, including sign-in, sign-out, passwordless authentication, and more. In this tutorial, we'll explore how to integrate NextAuth v5 with a Next.js 14 application to add authentication features to your project.
+
+## Prerequisites
+
+Before we get started, make sure you have the following installed on your machine:
+
+- Node.js
+- npm or yarn
+- Next.js 14
+
+## Step 1: Create a New Next.js 14 Project
+
+First, let's create a new Next.js 14 project using the following command:
+
+```bash
+npx create-next-app@latest my-next-auth-app
+```
+
+Next, navigate to the project directory:
+
+```bash
+cd my-next-auth-app
+```
+
+## Step 2: Install NextAuth v5
+
+To install NextAuth, ensure you have the latest version by checking the NextAuth GitHub or npm page. For this tutorial, we will use a beta version:
+
+```bash
+npm install next-auth@beta
+```
+
+## Step 3: Configure NextAuth
+
+To configure NextAuth, start by creating an auth.config.js file in the root of your project and add the following setup for Google authentication. Be sure to replace process.env.GOOGLE_CLIENT_ID and process.env.GOOGLE_CLIENT_SECRET with your actual Google OAuth credentials:
+
+```javascript
+// auth.config.js
+import GoogleProvider from "next-auth/providers/google";
+
+export default {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      profile(profile) {
+        return {
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
+    }),
+  ],
+};
+```
+
+In this configuration, we are setting up Google as the authentication provider. You will need to replace process.env.GOOGLE_CLIENT_ID and process.env.GOOGLE_CLIENT_SECRET with your own Google OAuth credentials.
+
+## Step 4 : Create a MongoDB Client Promise
+
+Create a new file in the app/helper/clientPromise.js and add the following code:
+
+```javascript
+// helper/clientPromise.js
+import { MongoClient } from "mongodb";
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+}
+
+const uri = process.env.MONGODB_URI;
+const options = {};
+
+let client;
+let clientPromise;
+
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    global._mongoClientPromise = client.connect();
+  }
+  clientPromise = global._mongoClientPromise;
+} else {
+  // In production mode, it's best to not use a global variable.
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
+}
+
+// Export a module-scoped MongoClient promise. By doing this in a
+// separate module, the client can be shared across functions.
+export default clientPromise;
+```
+
+## Step 5 : Create a Custom Authentication Handler
+
+Next, we need to create a custom authentication handler to handle the authentication flow. Create a new file in the app/auth.js and add the following code:
+
+```javascript
+// auth.js
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import NextAuth from "next-auth";
+import clientPromise from "./helper/clientPromise";
+import authConfig from "./auth.config";
+
+export const { handlers, auth } = NextAuth({
+  adapter: MongoDBAdapter(clientPromise),
+  session: { strategy: "jwt" },
+  callbacks: {
+    session: async ({ session, token }) => {
+      session.user = {
+        id: token.sub,
+        ...token,
+      };
+      return session;
+    },
+  },
+  ...authConfig,
+});
+```
+
+In this code, we are setting up a custom authentication handler using the MongoDBAdapter to store user data in a MongoDB database. You will need to replace the MongoDBAdapter with your own database adapter
+
+## Step 6: Create the API Route
+
+Next, we need to create an API route to handle the authentication flow. Create a new file in the app/api/auth/[...nextauth]/route.js (route.ts if using TypeScript). Add the following code:
+
+```javascript
+// api/auth/[...nextauth]/route.js
+import { handlers } from "@/auth";
+
+export const { GET, POST } = handlers;
+```
+
+## Step 7: Add Environment Variables
+
+Next, we need to add the required environment variables to our project. Create a new file called .env.local in the root of your project and add the following:
+
+```bash
+// .env.local
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+Replace GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET with your own Google OAuth credentials.
+
+## Step 8: Add Auth Secret
+
+Next, we need to add an auth secret to our project. Create a new file called .env.local in the root of your project and add the following:
+
+```bash
+// .env.local
+NEXTAUTH_SECRET=
+```
+
+Replace NEXTAUTH_SECRET with a random string of characters to use as the auth secret.
+
+## Step 9: Add Authentication to Your NextJS App
+
+Finally, we need to add authentication to our Next.js app. Update the app/layout.js, (layout.ts if you're using Typescript) file with the following code:
+
+Wrap the entire app component with the SessionProvider component from next-auth/react:
+
+```javascript
+// layout.js
+import { SessionProvider } from "next-auth/react";
+
+export default function Layout({ children }) {
+  return (
+    <SessionProvider>
+      <div>{children}</div>
+    </SessionProvider>
+  );
+}
+```
+
+## Step 10: Add Sign-In Button
+
+Next, let's add a sign-in button to our app. Update the app/page.js (page.tsx if you're using Typescript) file with the following code:
+
+```javascript
+// app/page.js
+import { signIn, signOut, useSession } from "next-auth/react";
+
+export default function Page() {
+  const { data: session } = useSession();
+
+  return (
+    <div>
+      {!session ? (
+        <button onClick={() => signIn("google")}>Sign in with Google</button>
+      ) : (
+        <button onClick={() => signOut()}>Sign out</button>
+      )}
+    </div>
+  );
+}
+```
+
+## Step 11: Test the Authentication Flow
+
+Now that we have set up authentication in our Next.js app, let's test the authentication flow. Start the development server by running the following command:
+
+```bash
+npm run dev
+```
+
+Navigate to http://localhost:3000 in your browser and try signing in with Google. You should be redirected to the Google sign-in page and then back to your app after successfully signing in.
+
+// Screenshots
+
+#### Sign-In Screen
+
+![Alt text](/blog/sign-in-screen.png "blog-screen")
+
+#### User Details Screen
+
+![Alt text](/blog/user-details-screen.png "user-details-screen")
+
+## Conclusion
+
+In this tutorial, we explored how to integrate NextAuth v5 with a Next.js 14 application to add authentication features to your project. NextAuth provides a simple and flexible way to manage user authentication in your Next.js apps. You can now build secure and user-friendly applications with ease using NextAuth.
+
+I hope you found this tutorial helpful. If you have any questions or feedback, feel free to leave a comment below.
