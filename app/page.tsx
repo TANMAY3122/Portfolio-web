@@ -15,9 +15,10 @@ const page = () => {
     <>
       <Hero />
       <Skills />
+      <Projects />
       <Experience />
       <Education />
-      <Projects />
+      
       <Blog />
       <DownloadResumeButton resumeUrl="/Tanmay Kashyap's Resume.pdf" />
       {/* <NewsLetter /> */}

@@ -11,7 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.nikks.tech"),
+  metadataBase: new URL("https://tanmaysportfolio.vercel.app/"),
   keywords: [
     "Tanmay Kashyap",
     "Tanmay Kashyap Freelance",
@@ -52,10 +52,10 @@ export const metadata: Metadata = {
     description:
       "Full Stack Developer based in India. I build web applications using modern technologies.",
     type: "website",
-    url: "https://www.nikks.tech/",
+    url: "https://tanmaysportfolio.vercel.app/",
     images: [
       {
-        url: "https://www.nikks.tech/nik-profile.jpeg",
+        url: "https://tanmaysportfolio.vercel.app/",
         width: 1200,
         height: 630,
         alt: "Profile picture of Tanmay Kashyap",
@@ -64,13 +64,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@nikhilnigamnik",
+    site: "@TANMAYK73082364",
     title: "Tanmay Kashyap - Full Stack Developer",
     description:
       "Full Stack Developer based in India. I build web applications using modern technologies.",
     images: [
       {
-        url: "https://www.nikks.tech/nik-profile.jpeg",
+        url: "https://www.nikks.tech/nik-profile.jpeghttps://x.com/TANMAYK73082364/photo",
         width: 1200,
         height: 630,
         alt: "Profile picture of Tanmay Kashyap",

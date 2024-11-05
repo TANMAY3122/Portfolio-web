@@ -31,10 +31,10 @@ const page = () => {
         setIsSubmitting(true);
         emailjs
             .sendForm(
-                "service_rqd4lmr",
-                "template_zpezhsa",
+                "service_dfekdfv",
+                "template_ubjg5kx",
                 form.current,
-                "tpUN_8Hqr7KViPvI2"
+                "dSF45AJn9Qe5FO8lC"
             )
             .then(
                 (result) => {

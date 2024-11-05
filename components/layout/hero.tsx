@@ -14,7 +14,7 @@ const Hero = () => {
       />
       <div>
         <h1 className="text-xl">Hey, I'm Tanmay Kashyap 👋</h1>
-        <span>Dynamic Project Manager | Mobile App & Full-Stack Developer | AI Solutionist</span>
+        <span>Dynamic Project Manager | Mobile App & Full-Stack Developer | Data Analyst | AI Solutionist</span>
       </div>
       <div className="flex  items-center gap-4">
         {socialLinks.map((link) => (

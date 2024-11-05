@@ -48,11 +48,16 @@ const Skills = () => {
                     />
                 ))}
             </div>
-            <div className="flex  gap-2 text-sm flex-col">
+
+            {/* Updated styling for skill cards */}
+            <div className="flex flex-wrap gap-2 mt-4">
                 {selectedSkills.map((skill, index) => (
-                    <button className="underline  rounded-full px-3  w-fit" key={index}>
+                    <div
+                        className="bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white rounded-lg px-4 py-2 text-sm shadow-sm"
+                        key={index}
+                    >
                         {skill}
-                    </button>
+                    </div>
                 ))}
             </div>
         </div>
